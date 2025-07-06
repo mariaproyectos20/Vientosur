@@ -14,42 +14,34 @@ export default function Home() {
   const [showMessaging, setShowMessaging] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50">
+    <div className="min-h-screen bg-white">
       <Navbar 
         onCreatePost={() => setShowCreatePost(true)} 
         onOpenMessages={() => setShowMessaging(true)}
       />
-      
-      <div className="flex max-w-[1600px] mx-auto pt-16">
-        {/* Left Sidebar - Navigation & Profile */}
-        <div className="hidden lg:block w-72 fixed h-full">
+      <div className="flex justify-center pt-16 px-4 lg:px-8 xl:px-16 2xl:px-0">
+        {/* Sidebar Izquierdo */}
+        <div className="hidden lg:block flex-shrink-0" style={{ width: 260, marginRight: 32 }}>
           <LeftSidebar />
         </div>
-
-        {/* Main Content */}
-        <div className="flex-1 lg:ml-72 lg:mr-[640px] min-h-screen">
+        {/* Feed Central */}
+        <main className="w-full max-w-xl mx-auto flex-shrink-0">
           <MainFeed />
-        </div>
-
-        {/* Right Sidebar Container - Two sidebars */}
-        <div className="hidden lg:block w-[640px] fixed right-0 h-full flex">
-          {/* Activity Sidebar - Notifications, Messages Preview */}
-          <div className="w-80 border-l border-gray-200/60">
+        </main>
+        {/* Sidebars Derechos */}
+        <div className="hidden xl:flex flex-col flex-shrink-0 ml-8" style={{ width: 320 }}>
+          <div className="mb-6">
             <ActivitySidebar onOpenMessages={() => setShowMessaging(true)} />
           </div>
-
-          {/* Info Sidebar - Suggestions, Events, Trends */}
-          <div className="w-80 border-l border-gray-200/60">
+          <div>
             <RightSidebar />
           </div>
         </div>
       </div>
-
       {/* Create Post Modal */}
       {showCreatePost && (
         <CreatePostModal onClose={() => setShowCreatePost(false)} />
       )}
-
       {/* Messaging Panel */}
       {showMessaging && (
         <MessagingPanel onClose={() => setShowMessaging(false)} />

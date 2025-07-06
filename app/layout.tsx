@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Viento Sur - Conecta con la Patagonia',
+  title: 'Viento Sur - Conecta con la cultura',
   description: 'Red social inspirada en las costas patagónicas',
 };
 
