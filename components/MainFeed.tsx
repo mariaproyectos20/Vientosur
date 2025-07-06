@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import StoryBar from './StoryBar';
 import PostCard from './PostCard';
 import CreatePostForm from './CreatePostForm';
@@ -59,6 +59,12 @@ const initialPosts = [
 
 export default function MainFeed() {
 	const [posts, setPosts] = useState(initialPosts);
+
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			(window as any).__MAIN_FEED_POSTS__ = posts;
+		}
+	}, [posts]);
 
 	const handlePostCreated = (newPost: any) => {
 		setPosts((prevPosts) => [newPost, ...prevPosts]);
