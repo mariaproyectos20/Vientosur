@@ -32,8 +32,8 @@ export default function ConfiguracionPage() {
   return (
     <>
       <Navbar onCreatePost={() => {}} onOpenMessages={() => setMessagesOpen(true)} />
-      <div className="flex min-h-screen pt-16 bg-gradient-to-br from-blue-50 via-white to-blue-100">
-        <div className="hidden lg:block flex-shrink-0 basis-1/5">
+      <div className="flex min-h-screen pt-16 bg-white">
+        <div className="hidden lg:block flex-shrink-0 w-[72px] min-w-[72px] max-w-[72px]">
           <LeftSidebar onOpenMessages={() => setMessagesOpen(true)} />
         </div>
         <main className="flex-1 flex-shrink-0 basis-3/5 p-8 flex flex-col items-center">
@@ -67,14 +67,6 @@ export default function ConfiguracionPage() {
             </div>
             {/* Secciones en tarjetas */}
             <div className="space-y-8">
-              {/* Editar perfil */}
-              <section className="bg-white rounded-xl shadow p-6 border border-blue-100">
-                <h2 className="font-bold text-blue-700 mb-4 text-lg">Editar perfil</h2>
-                <input className="input w-full mb-2" placeholder="Nombre" value={profile.name} onChange={e => setProfile(p => ({...p, name: e.target.value}))} />
-                <textarea className="input w-full mb-2" placeholder="Biografía" rows={2} value={profile.bio} onChange={e => setProfile(p => ({...p, bio: e.target.value}))} />
-                <input className="input w-full mb-2" placeholder="Email" value={profile.email} onChange={e => setProfile(p => ({...p, email: e.target.value}))} />
-                <Button size="sm" className="mt-1" onClick={() => alert('Perfil actualizado')}>Guardar cambios</Button>
-              </section>
               {/* Cambiar contraseña */}
               <section className="bg-white rounded-xl shadow p-6 border border-blue-100">
                 <h2 className="font-bold text-blue-700 mb-4 text-lg">Cambiar contraseña</h2>

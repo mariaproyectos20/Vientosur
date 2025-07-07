@@ -68,7 +68,9 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const isConfigPage = pathname === '/configuracion';
-	const isCollapsed = useSidebarCollapsed();
+	const isPerfilPage = pathname === '/perfil';
+	const isMensajesPage = pathname === '/mensajes';
+	const isCollapsed = isConfigPage || isPerfilPage || isMensajesPage || useSidebarCollapsed();
 
 	// Obtener posts del feed global para extraer eventos
 	useEffect(() => {
@@ -86,7 +88,7 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 		}
 	}, [calendarOpen]);
 	return (
-		<aside className={`hidden lg:block h-full border-r border-gray-200 bg-white p-4 space-y-6 transition-all duration-300 ${isConfigPage ? 'w-[72px] min-w-[72px] max-w-[72px]' : 'w-64'}`}>
+		<aside className={`hidden lg:block h-full border-r border-gray-200 bg-white p-4 space-y-6 transition-all duration-300 ${isCollapsed ? 'w-[72px] min-w-[72px] max-w-[72px]' : 'w-64'}`}>
 			{/* Navegación minimalista */}
 			<nav className="space-y-1">
 				{navigationItems.map((item) => (
@@ -95,9 +97,9 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 						variant={item.active ? 'default' : 'ghost'}
 						className={`w-full flex items-center space-x-3 rounded-lg h-10 px-3 transition-colors duration-200 ${
 							item.active
-								? 'bg-white text-black' // Fondo blanco, texto e icono negro, sin borde
+								? 'bg-white text-black'
 								: 'hover:bg-gray-200 text-gray-700'
-						} ${isConfigPage ? 'justify-center' : ''}`}
+						} ${isCollapsed ? 'justify-center' : ''}`}
 						style={{ boxShadow: item.active ? '0 2px 8px 0 rgba(0,0,0,0.04)' : undefined }}
 						onClick={() => {
 							switch (item.label) {
@@ -108,7 +110,7 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 									setProfileOpen(true);
 									break;
 								case 'Mensajes':
-									onOpenMessages();
+									router.push('/mensajes');
 									break;
 								case 'Mi Calendario':
 									setCalendarOpen(true);
@@ -125,10 +127,10 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 						}}
 					>
 						<item.icon className={`h-6 w-6 ${item.active ? 'text-blue-600' : 'text-gray-900'} transition-colors duration-200`} style={{ strokeWidth: 2 }} />
-						{!isConfigPage && (
+						{!isCollapsed && (
 							<span className="font-medium text-sm">{item.label}</span>
 						)}
-						{item.count > 0 && !isConfigPage && (
+						{item.count > 0 && !isCollapsed && (
 							<span className="ml-auto text-xs bg-red-500 text-white rounded-full px-2 py-0.5">
 								{item.count}
 							</span>
