@@ -1,10 +1,21 @@
 'use client';
 
-import { Search, Home, Compass, MessageCircle, Heart, Plus, User, Bell } from 'lucide-react';
+import { Search, MessageCircle, Heart, Plus, User, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from '@/components/ui/dropdown-menu';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 interface NavbarProps {
   onCreatePost: () => void;
@@ -12,6 +23,38 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onCreatePost, onOpenMessages }: NavbarProps) {
+  const router = useRouter();
+  const [showCreateEvent, setShowCreateEvent] = useState(false);
+  const [showCreatePost, setShowCreatePost] = useState(false);
+
+  // Funciones de navegación y acciones
+  const handleMenuClick = (action: string) => {
+    switch (action) {
+      case 'perfil':
+        router.push('/perfil');
+        break;
+      case 'crear-publicacion':
+        onCreatePost();
+        break;
+      case 'crear-evento':
+        setShowCreateEvent(true); // Aquí puedes abrir un modal de evento
+        break;
+      case 'calendario':
+        router.push('/calendario');
+        break;
+      case 'configuracion':
+        router.push('/configuracion');
+        break;
+      case 'logout':
+        // Aquí puedes limpiar el estado de sesión y redirigir
+        alert('Sesión cerrada');
+        router.push('/');
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-white border-b border-gray-200 z-50">
       <div className="flex justify-center">
@@ -33,12 +76,7 @@ export default function Navbar({ onCreatePost, onOpenMessages }: NavbarProps) {
           </div>
           {/* Iconos navegación */}
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="icon" className="icon-btn">
-              <Home className="h-5 w-5 text-gray-700" />
-            </Button>
-            <Button variant="ghost" size="icon" className="icon-btn">
-              <Compass className="h-5 w-5 text-gray-700" />
-            </Button>
+            {/* Eliminados Home y Compass */}
             <Button variant="ghost" size="icon" className="icon-btn relative" onClick={onOpenMessages}>
               <MessageCircle className="h-5 w-5 text-gray-700" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs h-4 w-4 flex items-center justify-center rounded-full">3</span>
@@ -47,13 +85,28 @@ export default function Navbar({ onCreatePost, onOpenMessages }: NavbarProps) {
               <Bell className="h-5 w-5 text-gray-700" />
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs h-4 w-4 flex items-center justify-center rounded-full">12</span>
             </Button>
-            <Button variant="ghost" size="icon" className="icon-btn bg-accent text-white" onClick={onCreatePost}>
-              <Plus className="h-5 w-5" />
-            </Button>
-            <Avatar className="h-8 w-8 ml-2 cursor-pointer avatar-ring">
-              <AvatarImage src="https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1" />
-              <AvatarFallback>TU</AvatarFallback>
-            </Avatar>
+            {/* Eliminado botón crear post directo, ahora va en el menú */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-8 w-8 ml-2 cursor-pointer avatar-ring">
+                  <AvatarImage src="https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1" />
+                  <AvatarFallback>TU</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-white">
+                <DropdownMenuItem onClick={() => handleMenuClick('perfil')}>Perfil</DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Crear</DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent className="bg-white">
+                    <DropdownMenuItem onClick={() => handleMenuClick('crear-publicacion')}>Publicación</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleMenuClick('crear-evento')}>Evento</DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuItem onClick={() => handleMenuClick('calendario')}>Mi calendario</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleMenuClick('configuracion')}>Configuración</DropdownMenuItem>
+                <DropdownMenuItem className="text-red-600" onClick={() => handleMenuClick('logout')}>Cerrar sesión</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

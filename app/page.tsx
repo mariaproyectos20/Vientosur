@@ -21,15 +21,15 @@ export default function Home() {
       />
       <div className="flex justify-center pt-16 px-4 lg:px-8 xl:px-16 2xl:px-0">
         {/* Sidebar Izquierdo */}
-        <div className="hidden lg:block flex-shrink-0" style={{ width: 260, marginRight: 32 }}>
+        <div className="hidden lg:block flex-shrink-0 basis-1/5">
           <LeftSidebar onOpenMessages={() => setShowMessaging(true)} />
         </div>
         {/* Feed Central */}
-        <main className="w-full max-w-xl mx-auto flex-shrink-0">
+        <main className="flex-shrink-0 basis-3/5 max-w-full">
           <MainFeed />
         </main>
         {/* Sidebars Derechos */}
-        <div className="hidden xl:flex flex-col flex-shrink-0 ml-8" style={{ width: 320 }}>
+        <div className="hidden xl:flex flex-col flex-shrink-0 basis-1/5">
           <div className="mb-6">
             <ActivitySidebar onOpenMessages={() => setShowMessaging(true)} />
           </div>

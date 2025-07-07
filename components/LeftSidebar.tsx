@@ -2,11 +2,10 @@
 
 import { Home, User, MessageCircle, Settings, Calendar, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import CalendarModal from './CalendarModal';
 import GenericModal from './GenericModal';
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const navigationItems = [
 	{ icon: Home, label: 'Inicio', route: '/', active: true, count: 0 },
@@ -19,6 +18,19 @@ const navigationItems = [
 
 interface LeftSidebarProps {
   onOpenMessages: () => void;
+}
+
+// Hook para detectar si el sidebar está contraído
+function useSidebarCollapsed() {
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const check = () => setCollapsed(document.body.classList.contains('sidebar-collapsed'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+  return collapsed;
 }
 
 export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
@@ -50,10 +62,13 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 		{ topic: '#DesarrolloWeb', posts: 60 },
 		{ topic: '#OpenAI', posts: 42 },
 	]);
-	const [selectedTrend, setSelectedTrend] = useState(null);
-	const [trendPosts, setTrendPosts] = useState([]);
+	const [selectedTrend, setSelectedTrend] = useState<{ topic: string; posts: number } | null>(null);
+	const [trendPosts, setTrendPosts] = useState<{ id: number; user: string; content: string }[]>([]);
 	const fileInputRef = useRef(null);
 	const router = useRouter();
+	const pathname = usePathname();
+	const isConfigPage = pathname === '/configuracion';
+	const isCollapsed = useSidebarCollapsed();
 
 	// Obtener posts del feed global para extraer eventos
 	useEffect(() => {
@@ -71,29 +86,19 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 		}
 	}, [calendarOpen]);
 	return (
-		<aside className="hidden lg:block w-64 h-full border-r border-gray-200 bg-white p-4 space-y-6">
-			{/* Perfil minimalista */}
-			<div className="flex flex-col items-center space-y-2 pb-4 border-b border-gray-100">
-				<Avatar className="h-16 w-16 avatar-ring">
-					<AvatarImage src="https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1" />
-					<AvatarFallback>TU</AvatarFallback>
-				</Avatar>
-				<div className="text-center">
-					<h3 className="font-bold text-base text-gray-900">Tu Usuario</h3>
-					<p className="text-xs text-gray-500">@tu_usuario</p>
-				</div>
-			</div>
+		<aside className={`hidden lg:block h-full border-r border-gray-200 bg-white p-4 space-y-6 transition-all duration-300 ${isConfigPage ? 'w-[72px] min-w-[72px] max-w-[72px]' : 'w-64'}`}>
 			{/* Navegación minimalista */}
 			<nav className="space-y-1">
 				{navigationItems.map((item) => (
 					<Button
 						key={item.label}
 						variant={item.active ? 'default' : 'ghost'}
-						className={`w-full flex items-center space-x-3 rounded-lg h-10 px-3 ${
+						className={`w-full flex items-center space-x-3 rounded-lg h-10 px-3 transition-colors duration-200 ${
 							item.active
 								? 'bg-white text-black' // Fondo blanco, texto e icono negro, sin borde
-								: 'hover:bg-gray-100 text-gray-700'
-						}`}
+								: 'hover:bg-gray-200 text-gray-700'
+						} ${isConfigPage ? 'justify-center' : ''}`}
+						style={{ boxShadow: item.active ? '0 2px 8px 0 rgba(0,0,0,0.04)' : undefined }}
 						onClick={() => {
 							switch (item.label) {
 								case 'Inicio':
@@ -119,9 +124,11 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 							}
 						}}
 					>
-						<item.icon className="h-5 w-5" />
-						<span className="font-medium text-sm">{item.label}</span>
-						{item.count > 0 && (
+						<item.icon className={`h-6 w-6 ${item.active ? 'text-blue-600' : 'text-gray-900'} transition-colors duration-200`} style={{ strokeWidth: 2 }} />
+						{!isConfigPage && (
+							<span className="font-medium text-sm">{item.label}</span>
+						)}
+						{item.count > 0 && !isConfigPage && (
 							<span className="ml-auto text-xs bg-red-500 text-white rounded-full px-2 py-0.5">
 								{item.count}
 							</span>
@@ -182,10 +189,6 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 					<section>
 						<h4 className="font-semibold mb-2">Editar perfil</h4>
 						<div className="flex items-center space-x-3 mb-2">
-							<Avatar className="h-12 w-12">
-								<AvatarImage src={profile.avatar} />
-								<AvatarFallback>{profile.name.slice(0,2).toUpperCase()}</AvatarFallback>
-							</Avatar>
 							<Button size="sm" variant="outline" onClick={() => fileInputRef.current && fileInputRef.current.click()}>Cambiar foto</Button>
 							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => {
 								const file = e.target.files?.[0];
@@ -264,10 +267,6 @@ export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 			</GenericModal>
 			<GenericModal open={profileOpen} onOpenChange={setProfileOpen} title="Perfil">
 				<div className="flex flex-col items-center p-4">
-					<Avatar className="h-20 w-20 mb-4">
-						<AvatarImage src={profile.avatar} />
-						<AvatarFallback>{profile.name.slice(0,2).toUpperCase()}</AvatarFallback>
-					</Avatar>
 					<h2 className="text-xl font-bold mb-1">{profile.name}</h2>
 					<p className="text-gray-500 mb-2">{profile.email}</p>
 					<p className="text-sm text-gray-700 mb-4 text-center">{profile.bio}</p>
