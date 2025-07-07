@@ -1,39 +1,58 @@
 'use client';
 
-import { Home, Compass, MessageCircle, Heart, Bookmark, Users, Settings, MapPin, Calendar, TrendingUp, Camera } from 'lucide-react';
+import { Home, User, MessageCircle, Settings, Calendar, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import CalendarModal from './CalendarModal';
 import GenericModal from './GenericModal';
-import StoriesModal from './StoriesModal';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
 const navigationItems = [
 	{ icon: Home, label: 'Inicio', route: '/', active: true, count: 0 },
-	{ icon: Compass, label: 'Explorar', route: '/explorar', active: false, count: 0 },
+	{ icon: User, label: 'Perfil', route: '/perfil', active: false, count: 0 },
 	{ icon: MessageCircle, label: 'Mensajes', route: '/mensajes', active: false, count: 3 },
-	{ icon: Heart, label: 'Notificaciones', route: '/notificaciones', active: false, count: 12 },
-	{ icon: Bookmark, label: 'Guardados', route: '/guardados', active: false, count: 0 },
-	{ icon: Users, label: 'Comunidades', route: '/comunidades', active: false, count: 2 },
-	{ icon: MapPin, label: 'Eventos', route: '/eventos', active: false, count: 5 },
 	{ icon: Calendar, label: 'Mi Calendario', route: null, active: false, count: 0 },
-	{ icon: Camera, label: 'Mis Historias', route: '/historias', active: false, count: 0 },
 	{ icon: TrendingUp, label: 'Tendencias', route: '/tendencias', active: false, count: 0 },
 	{ icon: Settings, label: 'Configuración', route: '/configuracion', active: false, count: 0 },
 ];
 
-export default function LeftSidebar() {
+interface LeftSidebarProps {
+  onOpenMessages: () => void;
+}
+
+export default function LeftSidebar({ onOpenMessages }: LeftSidebarProps) {
 	const [calendarOpen, setCalendarOpen] = useState(false);
-	const [messagesOpen, setMessagesOpen] = useState(false);
-	const [notificationsOpen, setNotificationsOpen] = useState(false);
-	const [savedOpen, setSavedOpen] = useState(false);
-	const [communitiesOpen, setCommunitiesOpen] = useState(false);
-	const [eventsOpen, setEventsOpen] = useState(false);
-	const [storiesOpen, setStoriesOpen] = useState(false);
 	const [trendsOpen, setTrendsOpen] = useState(false);
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [profileOpen, setProfileOpen] = useState(false);
 	const [events, setEvents] = useState([]);
+	const [profile, setProfile] = useState({
+		name: 'Tu Usuario',
+		email: 'usuario@email.com',
+		bio: 'Biografía breve...',
+		avatar: 'https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1',
+	});
+	const [theme, setTheme] = useState('Claro');
+	const [language, setLanguage] = useState('Español');
+	const [publicProfile, setPublicProfile] = useState(true);
+	const [allowDMs, setAllowDMs] = useState(true);
+	const [notifEmail, setNotifEmail] = useState(true);
+	const [notifPush, setNotifPush] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+	const [showNewPassword, setShowNewPassword] = useState(false);
+	const [currentPassword, setCurrentPassword] = useState('');
+	const [newPassword, setNewPassword] = useState('');
+	const [trends, setTrends] = useState([
+		{ topic: '#VientoSur', posts: 120 },
+		{ topic: '#ReactJS', posts: 98 },
+		{ topic: '#NextJS', posts: 75 },
+		{ topic: '#DesarrolloWeb', posts: 60 },
+		{ topic: '#OpenAI', posts: 42 },
+	]);
+	const [selectedTrend, setSelectedTrend] = useState(null);
+	const [trendPosts, setTrendPosts] = useState([]);
+	const fileInputRef = useRef(null);
 	const router = useRouter();
 
 	// Obtener posts del feed global para extraer eventos
@@ -72,7 +91,7 @@ export default function LeftSidebar() {
 						variant={item.active ? 'default' : 'ghost'}
 						className={`w-full flex items-center space-x-3 rounded-lg h-10 px-3 ${
 							item.active
-								? 'bg-accent text-white'
+								? 'bg-white text-black' // Fondo blanco, texto e icono negro, sin borde
 								: 'hover:bg-gray-100 text-gray-700'
 						}`}
 						onClick={() => {
@@ -80,29 +99,14 @@ export default function LeftSidebar() {
 								case 'Inicio':
 									router.push('/');
 									break;
-								case 'Explorar':
-									router.push('/explorar');
+								case 'Perfil':
+									setProfileOpen(true);
 									break;
 								case 'Mensajes':
-									setMessagesOpen(true);
-									break;
-								case 'Notificaciones':
-									setNotificationsOpen(true);
-									break;
-								case 'Guardados':
-									setSavedOpen(true);
-									break;
-								case 'Comunidades':
-									setCommunitiesOpen(true);
-									break;
-								case 'Eventos':
-									setEventsOpen(true);
+									onOpenMessages();
 									break;
 								case 'Mi Calendario':
 									setCalendarOpen(true);
-									break;
-								case 'Mis Historias':
-									setStoriesOpen(true);
 									break;
 								case 'Tendencias':
 									setTrendsOpen(true);
@@ -126,15 +130,150 @@ export default function LeftSidebar() {
 				))}
 			</nav>
 			<CalendarModal open={calendarOpen} onOpenChange={setCalendarOpen} events={events} />
-			<StoriesModal open={storiesOpen} onOpenChange={setStoriesOpen} />
-			{/* Modals para cada sección */}
-			<GenericModal open={messagesOpen} onOpenChange={setMessagesOpen} title="Mensajes" />
-			<GenericModal open={notificationsOpen} onOpenChange={setNotificationsOpen} title="Notificaciones" />
-			<GenericModal open={savedOpen} onOpenChange={setSavedOpen} title="Guardados" />
-			<GenericModal open={communitiesOpen} onOpenChange={setCommunitiesOpen} title="Comunidades" />
-			<GenericModal open={eventsOpen} onOpenChange={setEventsOpen} title="Eventos" />
-			<GenericModal open={trendsOpen} onOpenChange={setTrendsOpen} title="Tendencias" />
-			<GenericModal open={settingsOpen} onOpenChange={setSettingsOpen} title="Configuración" />
+			<GenericModal open={trendsOpen} onOpenChange={v => { setTrendsOpen(v); setSelectedTrend(null); }} title={selectedTrend ? `Posts de ${selectedTrend.topic}` : "Tendencias"}>
+				<div className="p-4">
+					{!selectedTrend ? (
+						<>
+							<h3 className="font-semibold text-lg mb-4">Tendencias actuales</h3>
+							<ul className="space-y-3">
+								{trends.map((trend, idx) => (
+									<li key={trend.topic} className="flex items-center justify-between hover:bg-gray-100 rounded px-3 py-2 cursor-pointer" onClick={() => {
+										setSelectedTrend(trend);
+										// Simulación de posts reales para la tendencia
+										setTrendPosts([
+											{ id: 1, user: 'Ana', content: `¡Me encanta ${trend.topic}!` },
+											{ id: 2, user: 'Luis', content: `¿Quién más sigue ${trend.topic}?` },
+											{ id: 3, user: 'Sofía', content: `Recomiendo recursos sobre ${trend.topic}` },
+										]);
+									}}>
+										<span className="font-medium text-blue-700">{trend.topic}</span>
+										<span className="text-xs text-gray-500">{trend.posts} posts</span>
+									</li>
+								))}
+							</ul>
+							<Button className="mt-6 w-full" onClick={() => setTrends([
+								...trends,
+								{ topic: `#NuevaTendencia${trends.length+1}`, posts: Math.floor(Math.random()*100) }
+							])}>
+								Agregar tendencia de ejemplo
+							</Button>
+						</>
+					) : (
+						<>
+							<Button size="sm" variant="outline" className="mb-4" onClick={() => setSelectedTrend(null)}>
+								← Volver a tendencias
+							</Button>
+							<h3 className="font-semibold text-lg mb-4">Posts de {selectedTrend.topic}</h3>
+							<ul className="space-y-4">
+								{trendPosts.map(post => (
+									<li key={post.id} className="border rounded p-3 bg-gray-50">
+										<div className="font-semibold text-sm text-blue-800 mb-1">{post.user}</div>
+										<div className="text-gray-800 text-sm">{post.content}</div>
+									</li>
+								))}
+							</ul>
+						</>
+					)}
+				</div>
+			</GenericModal>
+			<GenericModal open={settingsOpen} onOpenChange={setSettingsOpen} title="Configuración">
+				<div className="space-y-6 p-2">
+					{/* Editar perfil */}
+					<section>
+						<h4 className="font-semibold mb-2">Editar perfil</h4>
+						<div className="flex items-center space-x-3 mb-2">
+							<Avatar className="h-12 w-12">
+								<AvatarImage src={profile.avatar} />
+								<AvatarFallback>{profile.name.slice(0,2).toUpperCase()}</AvatarFallback>
+							</Avatar>
+							<Button size="sm" variant="outline" onClick={() => fileInputRef.current && fileInputRef.current.click()}>Cambiar foto</Button>
+							<input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={e => {
+								const file = e.target.files?.[0];
+								if (file) {
+									const reader = new FileReader();
+									reader.onload = ev => setProfile(p => ({ ...p, avatar: ev.target?.result as string }));
+									reader.readAsDataURL(file);
+								}
+							}} />
+						</div>
+						<input className="input w-full mb-2" placeholder="Nombre" value={profile.name} onChange={e => setProfile(p => ({...p, name: e.target.value}))} />
+						<textarea className="input w-full mb-2" placeholder="Biografía" rows={2} value={profile.bio} onChange={e => setProfile(p => ({...p, bio: e.target.value}))} />
+						<input className="input w-full mb-2" placeholder="Email" value={profile.email} onChange={e => setProfile(p => ({...p, email: e.target.value}))} />
+						<Button size="sm" className="mt-1" onClick={() => alert('Perfil actualizado')}>Guardar cambios</Button>
+					</section>
+					{/* Cambiar contraseña */}
+					<section>
+						<h4 className="font-semibold mb-2">Cambiar contraseña</h4>
+						<input className="input w-full mb-2" type={showPassword ? 'text' : 'password'} placeholder="Contraseña actual" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} />
+						<input className="input w-full mb-2" type={showNewPassword ? 'text' : 'password'} placeholder="Nueva contraseña" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
+						<div className="flex space-x-2 mb-2">
+							<label className="flex items-center text-xs"><input type="checkbox" checked={showPassword} onChange={e => setShowPassword(e.target.checked)} /> Mostrar actual</label>
+							<label className="flex items-center text-xs"><input type="checkbox" checked={showNewPassword} onChange={e => setShowNewPassword(e.target.checked)} /> Mostrar nueva</label>
+						</div>
+						<Button size="sm" onClick={() => {setCurrentPassword('');setNewPassword('');alert('Contraseña actualizada')}}>Actualizar contraseña</Button>
+					</section>
+					{/* Preferencias de notificaciones */}
+					<section>
+						<h4 className="font-semibold mb-2">Notificaciones</h4>
+						<label className="flex items-center space-x-2 mb-1">
+							<input type="checkbox" checked={notifEmail} onChange={e => setNotifEmail(e.target.checked)} /> <span>Email</span>
+						</label>
+						<label className="flex items-center space-x-2 mb-1">
+							<input type="checkbox" checked={notifPush} onChange={e => setNotifPush(e.target.checked)} /> <span>Push</span>
+						</label>
+					</section>
+					{/* Tema */}
+					<section>
+						<h4 className="font-semibold mb-2">Tema</h4>
+						<select className="input w-full" value={theme} onChange={e => setTheme(e.target.value)}>
+							<option>Claro</option>
+							<option>Oscuro</option>
+							<option>Automático</option>
+						</select>
+					</section>
+					{/* Privacidad */}
+					<section>
+						<h4 className="font-semibold mb-2">Privacidad</h4>
+						<label className="flex items-center space-x-2 mb-1">
+							<input type="checkbox" checked={publicProfile} onChange={e => setPublicProfile(e.target.checked)} /> <span>Perfil público</span>
+						</label>
+						<label className="flex items-center space-x-2 mb-1">
+							<input type="checkbox" checked={allowDMs} onChange={e => setAllowDMs(e.target.checked)} /> <span>Permitir mensajes directos</span>
+						</label>
+					</section>
+					{/* Cuentas vinculadas */}
+					<section>
+						<h4 className="font-semibold mb-2">Cuentas vinculadas</h4>
+						<Button size="sm" variant="outline" onClick={() => alert('Google conectado')}>Conectar Google</Button>
+						<Button size="sm" variant="outline" className="ml-2" onClick={() => alert('Facebook conectado')}>Conectar Facebook</Button>
+					</section>
+					{/* Idioma */}
+					<section>
+						<h4 className="font-semibold mb-2">Idioma</h4>
+						<select className="input w-full" value={language} onChange={e => setLanguage(e.target.value)}>
+							<option>Español</option>
+							<option>Inglés</option>
+						</select>
+					</section>
+					{/* Cerrar sesión y eliminar cuenta */}
+					<section className="flex flex-col space-y-2 pt-2 border-t">
+						<Button variant="destructive" onClick={() => {alert('Sesión cerrada');router.push('/')}}>Cerrar sesión</Button>
+						<Button variant="outline" className="text-red-600 border-red-400" onClick={() => {if(confirm('¿Seguro que deseas eliminar tu cuenta?')){alert('Cuenta eliminada')}}}>Eliminar cuenta</Button>
+					</section>
+				</div>
+			</GenericModal>
+			<GenericModal open={profileOpen} onOpenChange={setProfileOpen} title="Perfil">
+				<div className="flex flex-col items-center p-4">
+					<Avatar className="h-20 w-20 mb-4">
+						<AvatarImage src={profile.avatar} />
+						<AvatarFallback>{profile.name.slice(0,2).toUpperCase()}</AvatarFallback>
+					</Avatar>
+					<h2 className="text-xl font-bold mb-1">{profile.name}</h2>
+					<p className="text-gray-500 mb-2">{profile.email}</p>
+					<p className="text-sm text-gray-700 mb-4 text-center">{profile.bio}</p>
+					<Button size="sm" variant="outline" onClick={() => setSettingsOpen(true)}>Editar perfil</Button>
+				</div>
+			</GenericModal>
 		</aside>
 	);
 }

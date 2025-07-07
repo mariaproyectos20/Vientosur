@@ -22,7 +22,7 @@ export default function Home() {
       <div className="flex justify-center pt-16 px-4 lg:px-8 xl:px-16 2xl:px-0">
         {/* Sidebar Izquierdo */}
         <div className="hidden lg:block flex-shrink-0" style={{ width: 260, marginRight: 32 }}>
-          <LeftSidebar />
+          <LeftSidebar onOpenMessages={() => setShowMessaging(true)} />
         </div>
         {/* Feed Central */}
         <main className="w-full max-w-xl mx-auto flex-shrink-0">
